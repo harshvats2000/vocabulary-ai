@@ -12,7 +12,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const { word, meaning } = req.body;
-    console.log(word, meaning);
     const chatCompletion = await client.chat.completions.create({
       messages: [
         {

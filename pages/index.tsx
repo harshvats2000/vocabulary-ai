@@ -5,22 +5,26 @@ import { FormEvent, useEffect, useState } from "react";
 export default function Home() {
   const [word, setWord] = useState<{ word: string; example: string; meaning: string } | null>(null);
   const [meaning, setMeaning] = useState<string>("");
+  const [checking, setChecking] = useState(false);
+  const [checkResult, setCheckResult] = useState<null | { answer: "no" | "yes"; reason?: string }>(null);
 
   async function fetchWords() {
     const { data } = await axios.get(`/api/word`);
-    console.log(data);
 
     setWord(data);
   }
 
   async function checkMeaning(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setChecking(true);
     if (!word) return;
     const { data } = await axios.post(`/api/check-meaning`, {
       meaning,
       word: word.word
     });
-    console.log(data);
+
+    setCheckResult(data);
+    setChecking(false);
   }
 
   useEffect(() => {
@@ -45,6 +49,20 @@ export default function Home() {
               onChange={(e) => setMeaning(e.target.value)}
             />
             <button type="submit">Check</button>
+            <div className="mt-2">
+              {checking === false && checkResult?.answer === "yes" && (
+                <div className="p-2 bg-green-100 text-green-700">
+                  <h2>CORRECT</h2>
+                  <p>{checkResult.reason}</p>
+                </div>
+              )}
+              {checking === false && checkResult?.answer === "no" && (
+                <div className="p-2 bg-red-100 text-red-700">
+                  <h2>WRONG</h2>
+                  <p>{checkResult.reason}</p>
+                </div>
+              )}
+            </div>
           </form>
         </div>
       )}
